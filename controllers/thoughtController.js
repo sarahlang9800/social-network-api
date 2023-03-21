@@ -1,5 +1,4 @@
 const { User, Thought } = require('../models');
-const userController = require('./userController');
 
 module.exports = {
     getThoughts(req, res) {
@@ -7,6 +6,7 @@ module.exports = {
             .then((thoughts) => res.status(200).json(thoughts))
             .catch((err) => res.status(500).json(err));
     },
+
     getSingleThought(req, res) {
         Thought.findOne({ _id: req.params.id })
             .then((thought) =>
@@ -16,13 +16,11 @@ module.exports = {
             )
             .catch((err) => res.status(500).json(err));
     },
+
     createThought(req, res) {
         Thought.create(req.body)
-            .then((thought) => User.findOneAndUpdate(
-            { _id: req.params.id },
-            { $push: req.body },
-            res.json(thought))
-            .catch((err) => res.status(500).json(err)));
+            .then((thought) => res.json(thought))
+            .catch((err) => res.status(500).json(err));
     },
 
     deleteThought(req, res) {
@@ -37,6 +35,7 @@ module.exports = {
                     )
             )
     },
+
     updateThought(req, res) {
         Thought.findOneAndUpdate(
             { _id: req.params.id },
@@ -49,13 +48,14 @@ module.exports = {
             )
             .catch((err) => res.status(500).json(err));
     },
+
     createReaction(req, res) {
         Thought.findOneAndUpdate(
-            { _id: req.params.id },
+            { _id: req.params.thoughtId },
             { $push: { reactions: req.body } },
             { new: true, runValidators: true }
         )
-            .populate('reactions')
+            // .populate('reactions')
             .then((thought) =>
                 !thought
                     ? res.status(404).json({ message: 'Thought with this id does not exist!' })
@@ -63,6 +63,7 @@ module.exports = {
             )
             .catch((err) => res.status(500).json(err));
     },
+
     deleteReaction(req, res) {
         Thought.findOneAndDelete(
             { _id: req.params.id },
