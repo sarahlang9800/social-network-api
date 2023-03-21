@@ -55,7 +55,7 @@ module.exports = {
             { $push: { reactions: req.body } },
             { new: true, runValidators: true }
         )
-            // .populate('reactions')
+            .populate('reactions')
             .then((thought) =>
                 !thought
                     ? res.status(404).json({ message: 'Thought with this id does not exist!' })
