@@ -1,4 +1,5 @@
 const { User, Thought } = require('../models');
+const userController = require('./userController');
 
 module.exports = {
     getThoughts(req, res) {
@@ -17,27 +18,29 @@ module.exports = {
     },
     createThought(req, res) {
         Thought.create(req.body)
-            .then((thought) => res.json(thought))
-            .catch((err) => res.status(500).json(err));
+            .then((thought) => User.findOneAndUpdate(
+            { _id: req.params.id },
+            { $push: req.body },
+            res.json(thought))
+            .catch((err) => res.status(500).json(err)));
     },
+
     deleteThought(req, res) {
-        Thought.findOneAndDelete({ _id: req.params.thoughtId })
+        Thought.findOneAndDelete({ _id: req.params.id })
             .then((thought) =>
                 !thought
                     ? res.status(404).json({ message: 'Thought with that ID does not exist!' })
                     : Thought.findOneAndUpdate(
-                        { thoughts: req.params.thoughtId },
-                        { $pull: { thoughts: req.params.thoughtId } },
+                        { thoughts: req.params.id },
+                        { $pull: { thoughts: req.params.id } },
                         { message: 'Thought successfully deleted' }
                     )
             )
     },
     updateThought(req, res) {
         Thought.findOneAndUpdate(
-            { _id: req.params.thoughtId },
-            {
-                $pull: { thought: { _id: req.params.thoughtId } }
-            }
+            { _id: req.params.id },
+            { $set: req.body }
         )
             .then((thought) =>
                 !thought
@@ -48,7 +51,7 @@ module.exports = {
     },
     createReaction(req, res) {
         Thought.findOneAndUpdate(
-            { _id: req.params.thoughtId },
+            { _id: req.params.id },
             { $push: { reactions: req.body } },
             { new: true, runValidators: true }
         )
@@ -62,7 +65,7 @@ module.exports = {
     },
     deleteReaction(req, res) {
         Thought.findOneAndDelete(
-            { _id: req.params.thoughtId },
+            { _id: req.params.id },
             { $pull: { reactions: { reactionId: req.params.reactionId } } },
             { new: true }
         )
