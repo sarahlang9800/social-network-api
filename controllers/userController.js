@@ -6,9 +6,9 @@ module.exports = {
             .then((users) => res.json(users))
             .catch((err) => res.status(500).json(err));
     },
-    
+
     getSingleUser(req, res) {
-        User.findOne({ id: req.params.id })
+        User.findOne({ _id: req.params.id })
             .populate('thoughts')
             .populate('friends')
             .then((user) =>
